@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Internship Tracker</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #eef2f7;
+      --surface: rgba(255, 255, 255, 0.88);
+      --surface-solid: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --primary: #1d4ed8;
+      --primary-dark: #1e40af;
+      --primary-soft: #dbeafe;
+      --success: #16a34a;
+      --success-soft: #dcfce7;
+      --danger: #dc2626;
+      --danger-soft: #fee2e2;
+      --warning: #f97316;
+      --warning-soft: #fff7ed;
+      --shadow: 0 18px 45px rgba(15, 23, 42, 0.10);
+      --shadow-soft: 0 10px 28px rgba(15, 23, 42, 0.07);
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, #dbeafe 0, transparent 32%),
+        linear-gradient(135deg, #f8fafc 0%, #eef2f7 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      max-width: 1100px;
+      margin: 28px auto 0;
+      padding: 34px 28px;
+      color: white;
+      border-radius: 28px;
+      background:
+        linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(30, 64, 175, 0.92)),
+        radial-gradient(circle at top right, rgba(96, 165, 250, 0.45), transparent 36%);
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::after {
+      content: "";
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      right: -70px;
+      top: -90px;
+      background: rgba(147, 197, 253, 0.22);
+      border-radius: 999px;
+    }
+
+    header h1 {
+      margin: 0 0 10px;
+      font-size: clamp(26px, 4vw, 40px);
+      letter-spacing: -0.04em;
+      position: relative;
+      z-index: 1;
+    }
+
+    header p {
+      margin: 0;
+      color: #cbd5e1;
+      font-size: 15px;
+      position: relative;
+      z-index: 1;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 24px auto;
+      padding: 0 16px 48px;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .summary-card,
+    .panel,
+    .company-card {
+      background: var(--surface);
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .summary-card {
+      border-radius: 22px;
+      padding: 20px;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .summary-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+
+    .summary-card .label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .summary-card .value {
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: #0f172a;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .panel {
+      border-radius: 26px;
+      padding: 22px;
+    }
+
+    .panel h2 {
+      margin: 0 0 18px;
+      font-size: 20px;
+      letter-spacing: -0.03em;
+    }
+
+    form.panel {
+      position: sticky;
+      top: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin: 13px 0 7px;
+      color: #374151;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      padding: 12px 13px;
+      border: 1px solid #d9e0ea;
+      border-radius: 14px;
+      font-size: 14px;
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: #93c5fd;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+      background: #ffffff;
+    }
+
+    textarea {
+      min-height: 76px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+
+    .checks {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      margin-top: 10px;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 13px;
+      font-weight: 700;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 10px;
+    }
+
+    .check-item input {
+      width: auto;
+      accent-color: var(--primary);
+    }
+
+    .buttons {
+      display: flex;
+      gap: 9px;
+      margin-top: 20px;
+    }
+
+    button {
+      border: none;
+      border-radius: 14px;
+      padding: 11px 15px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    .primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      flex: 1;
+      box-shadow: 0 10px 22px rgba(37, 99, 235, 0.25);
+    }
+
+    .secondary {
+      background: #eef2f7;
+      color: #1f2937;
+    }
+
+    .danger {
+      background: var(--danger-soft);
+      color: #991b1b;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr 165px;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .company-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .company-card {
+      border-radius: 22px;
+      padding: 18px;
+      background: rgba(255, 255, 255, 0.92);
+      transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+    }
+
+    .company-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+
+    .company-card.urgent {
+      border-color: rgba(249, 115, 22, 0.45);
+      background:
+        linear-gradient(180deg, rgba(255, 247, 237, 0.9), rgba(255, 255, 255, 0.95));
+    }
+
+    .company-card.overdue {
+      border-color: rgba(220, 38, 38, 0.42);
+      background:
+        linear-gradient(180deg, rgba(254, 242, 242, 0.95), rgba(255, 255, 255, 0.95));
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .company-name {
+      font-size: 19px;
+      font-weight: 850;
+      letter-spacing: -0.03em;
+      margin-bottom: 6px;
+    }
+
+    .deadline {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .status-badge {
+      white-space: nowrap;
+      padding: 7px 11px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      background: var(--primary-soft);
+      color: #1e3a8a;
+      border: 1px solid #bfdbfe;
+    }
+
+    .progress-wrap {
+      margin: 15px 0 13px;
+    }
+
+    .progress-text {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 7px;
+      color: #475569;
+      font-weight: 700;
+    }
+
+    .progress-bar {
+      height: 10px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #60a5fa, #1d4ed8);
+      width: 0%;
+      border-radius: 999px;
+    }
+
+    .task-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin: 12px 0;
+    }
+
+    .tag {
+      font-size: 12px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: #f1f5f9;
+      color: #334155;
+      font-weight: 700;
+    }
+
+    .tag.done {
+      background: var(--success-soft);
+      color: #166534;
+    }
+
+    .tag.not-done {
+      background: var(--danger-soft);
+      color: #991b1b;
+    }
+
+    .memo {
+      font-size: 14px;
+      color: #374151;
+      margin-top: 9px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      background: #f8fafc;
+      border: 1px solid #edf2f7;
+      border-radius: 14px;
+      padding: 10px 12px;
+    }
+
+    .memo strong {
+      color: #111827;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 14px;
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 36px 10px;
+      border: 1px dashed #cbd5e1;
+      border-radius: 20px;
+      background: rgba(248, 250, 252, 0.8);
+    }
+
+    @media (max-width: 860px) {
+      header {
+        margin: 12px 12px 0;
+        border-radius: 22px;
+        padding: 28px 22px;
+      }
+
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      form.panel {
+        position: static;
+      }
+
+      .toolbar {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 520px) {
+      main {
+        padding: 0 12px 40px;
+      }
+
+      .summary {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .layout {
+        gap: 16px;
+      }
+
+      .panel {
+        padding: 18px;
+        border-radius: 22px;
+      }
+
+      .checks {
+        grid-template-columns: 1fr;
+      }
+
+      .card-top {
+        flex-direction: column;
+      }
+
+      .status-badge {
+        align-self: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Internship Tracker</h1>
+    <p>複数企業の応募締切・提出物・選考状況を一元管理する就活支援アプリ</p>
+  </header>
+
+  <main>
+    <section class="summary">
+      <div class="summary-card">
+        <div class="label">登録企業数</div>
+        <div class="value" id="totalCount">0</div>
+      </div>
+      <div class="summary-card">
+        <div class="label">平均進捗率</div>
+        <div class="value" id="averageProgress">0%</div>
+      </div>
+      <div class="summary-card">
+        <div class="label">7日以内の締切</div>
+        <div class="value" id="urgentCount">0</div>
+      </div>
+      <div class="summary-card">
+        <div class="label">未完了タスク数</div>
+        <div class="value" id="remainingTasks">0</div>
+      </div>
+    </section>
+
+    <section class="layout">
+      <form class="panel" id="companyForm">
+        <h2 id="formTitle">応募情報を追加</h2>
+
+        <input type="hidden" id="editId" />
+
+        <label for="companyName">企業名</label>
+        <input id="companyName" type="text" placeholder="例：株式会社サンプル" required />
+
+        <label for="deadline">応募締切</label>
+        <input id="deadline" type="date" required />
+
+        <label for="documents">必要書類</label>
+        <textarea id="documents" placeholder="例：ES、履歴書、研究内容、ポートフォリオURL"></textarea>
+
+        <label for="interviewDate">面接日程</label>
+        <input id="interviewDate" type="date" />
+
+        <label for="result">合否・選考状況</label>
+        <select id="result">
+          <option value="未応募">未応募</option>
+          <option value="応募済み">応募済み</option>
+          <option value="Webテスト待ち">Webテスト待ち</option>
+          <option value="面接待ち">面接待ち</option>
+          <option value="結果待ち">結果待ち</option>
+          <option value="通過">通過</option>
+          <option value="不合格">不合格</option>
+        </select>
+
+        <label for="nextAction">次にやること</label>
+        <textarea id="nextAction" placeholder="例：ESのガクチカを400字に直す"></textarea>
+
+        <label>提出・選考タスク</label>
+        <div class="checks">
+          <label class="check-item"><input type="checkbox" id="taskEs" /> ES提出</label>
+          <label class="check-item"><input type="checkbox" id="taskResume" /> 履歴書</label>
+          <label class="check-item"><input type="checkbox" id="taskWebTest" /> Webテスト</label>
+          <label class="check-item"><input type="checkbox" id="taskInterview" /> 面接</label>
+        </div>
+
+        <div class="buttons">
+          <button type="submit" class="primary">保存</button>
+          <button type="button" class="secondary" id="resetBtn">リセット</button>
+        </div>
+      </form>
+
+      <section class="panel">
+        <h2>応募一覧</h2>
+
+        <div class="toolbar">
+          <input id="searchInput" type="text" placeholder="企業名・次にやることを検索" />
+          <select id="filterSelect">
+            <option value="all">すべて</option>
+            <option value="incomplete">未完了あり</option>
+            <option value="urgent">締切7日以内</option>
+            <option value="overdue">締切超過</option>
+            <option value="passed">通過</option>
+          </select>
+        </div>
+
+        <div class="company-list" id="companyList"></div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "internshipTaskManagerData";
+
+    const form = document.getElementById("companyForm");
+    const formTitle = document.getElementById("formTitle");
+    const editId = document.getElementById("editId");
+    const companyName = document.getElementById("companyName");
+    const deadline = document.getElementById("deadline");
+    const documents = document.getElementById("documents");
+    const interviewDate = document.getElementById("interviewDate");
+    const result = document.getElementById("result");
+    const nextAction = document.getElementById("nextAction");
+    const taskEs = document.getElementById("taskEs");
+    const taskResume = document.getElementById("taskResume");
+    const taskWebTest = document.getElementById("taskWebTest");
+    const taskInterview = document.getElementById("taskInterview");
+    const resetBtn = document.getElementById("resetBtn");
+    const searchInput = document.getElementById("searchInput");
+    const filterSelect = document.getElementById("filterSelect");
+    const companyList = document.getElementById("companyList");
+
+    let companies = loadCompanies();
+
+    function loadCompanies() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : [];
+    }
+
+    function saveCompanies() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(companies));
+    }
+
+    function createId() {
+      return Date.now().toString(36) + Math.random().toString(36).slice(2);
+    }
+
+    function getTasks(company) {
+      return [
+        { name: "ES提出", done: company.tasks.es },
+        { name: "履歴書", done: company.tasks.resume },
+        { name: "Webテスト", done: company.tasks.webTest },
+        { name: "面接", done: company.tasks.interview }
+      ];
+    }
+
+    function getProgress(company) {
+      const tasks = getTasks(company);
+      const doneCount = tasks.filter(task => task.done).length;
+      return Math.round((doneCount / tasks.length) * 100);
+    }
+
+    function getDaysLeft(dateString) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const target = new Date(dateString);
+      target.setHours(0, 0, 0, 0);
+
+      return Math.ceil((target - today) / (1000 * 60 * 60 * 24));
+    }
+
+    function getDeadlineText(company) {
+      const daysLeft = getDaysLeft(company.deadline);
+
+      if (daysLeft < 0) return `締切超過：${company.deadline}`;
+      if (daysLeft === 0) return `本日締切：${company.deadline}`;
+      return `あと${daysLeft}日：${company.deadline}`;
+    }
+
+    function getCardClass(company) {
+      const daysLeft = getDaysLeft(company.deadline);
+      const progress = getProgress(company);
+
+      if (daysLeft < 0 && progress < 100) return "company-card overdue";
+      if (daysLeft <= 7 && progress < 100) return "company-card urgent";
+      return "company-card";
+    }
+
+    function renderSummary() {
+      const totalCount = companies.length;
+      const averageProgress = totalCount === 0
+        ? 0
+        : Math.round(companies.reduce((sum, company) => sum + getProgress(company), 0) / totalCount);
+      const urgentCount = companies.filter(company => {
+        const daysLeft = getDaysLeft(company.deadline);
+        return daysLeft >= 0 && daysLeft <= 7 && getProgress(company) < 100;
+      }).length;
+      const remainingTasks = companies.reduce((sum, company) => {
+        return sum + getTasks(company).filter(task => !task.done).length;
+      }, 0);
+
+      document.getElementById("totalCount").textContent = totalCount;
+      document.getElementById("averageProgress").textContent = `${averageProgress}%`;
+      document.getElementById("urgentCount").textContent = urgentCount;
+      document.getElementById("remainingTasks").textContent = remainingTasks;
+    }
+
+    function renderCompanies() {
+      const keyword = searchInput.value.trim().toLowerCase();
+      const filter = filterSelect.value;
+
+      let filtered = [...companies];
+
+      if (keyword) {
+        filtered = filtered.filter(company => {
+          return company.name.toLowerCase().includes(keyword) ||
+            company.nextAction.toLowerCase().includes(keyword) ||
+            company.documents.toLowerCase().includes(keyword);
+        });
+      }
+
+      filtered = filtered.filter(company => {
+        const progress = getProgress(company);
+        const daysLeft = getDaysLeft(company.deadline);
+
+        if (filter === "incomplete") return progress < 100;
+        if (filter === "urgent") return daysLeft >= 0 && daysLeft <= 7 && progress < 100;
+        if (filter === "overdue") return daysLeft < 0 && progress < 100;
+        if (filter === "passed") return company.result === "通過";
+        return true;
+      });
+
+      filtered.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+
+      if (filtered.length === 0) {
+        companyList.innerHTML = `<div class="empty">表示できる応募情報がありません。</div>`;
+        return;
+      }
+
+      companyList.innerHTML = filtered.map(company => {
+        const progress = getProgress(company);
+        const taskTags = getTasks(company).map(task => {
+          const className = task.done ? "tag done" : "tag not-done";
+          const mark = task.done ? "完了" : "未完了";
+          return `<span class="${className}">${task.name}：${mark}</span>`;
+        }).join("");
+
+        return `
+          <article class="${getCardClass(company)}">
+            <div class="card-top">
+              <div>
+                <div class="company-name">${escapeHtml(company.name)}</div>
+                <div class="deadline">${getDeadlineText(company)}</div>
+                ${company.interviewDate ? `<div class="deadline">面接日程：${company.interviewDate}</div>` : ""}
+              </div>
+              <span class="status-badge">${escapeHtml(company.result)}</span>
+            </div>
+
+            <div class="progress-wrap">
+              <div class="progress-text">
+                <span>進捗率</span>
+                <span>${progress}%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: ${progress}%"></div>
+              </div>
+            </div>
+
+            <div class="task-tags">${taskTags}</div>
+
+            ${company.documents ? `<div class="memo"><strong>必要書類：</strong>${escapeHtml(company.documents)}</div>` : ""}
+            ${company.nextAction ? `<div class="memo"><strong>次にやること：</strong>${escapeHtml(company.nextAction)}</div>` : ""}
+
+            <div class="card-actions">
+              <button class="secondary" onclick="editCompany('${company.id}')">編集</button>
+              <button class="danger" onclick="deleteCompany('${company.id}')">削除</button>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function resetForm() {
+      form.reset();
+      editId.value = "";
+      formTitle.textContent = "応募情報を追加";
+    }
+
+    form.addEventListener("submit", event => {
+      event.preventDefault();
+
+      const data = {
+        id: editId.value || createId(),
+        name: companyName.value.trim(),
+        deadline: deadline.value,
+        documents: documents.value.trim(),
+        interviewDate: interviewDate.value,
+        result: result.value,
+        nextAction: nextAction.value.trim(),
+        tasks: {
+          es: taskEs.checked,
+          resume: taskResume.checked,
+          webTest: taskWebTest.checked,
+          interview: taskInterview.checked
+        }
+      };
+
+      if (!data.name || !data.deadline) {
+        alert("企業名と応募締切は必須です。");
+        return;
+      }
+
+      if (editId.value) {
+        companies = companies.map(company => company.id === editId.value ? data : company);
+      } else {
+        companies.push(data);
+      }
+
+      saveCompanies();
+      resetForm();
+      render();
+    });
+
+    resetBtn.addEventListener("click", resetForm);
+    searchInput.addEventListener("input", renderCompanies);
+    filterSelect.addEventListener("change", renderCompanies);
+
+    window.editCompany = function(id) {
+      const company = companies.find(item => item.id === id);
+      if (!company) return;
+
+      editId.value = company.id;
+      companyName.value = company.name;
+      deadline.value = company.deadline;
+      documents.value = company.documents;
+      interviewDate.value = company.interviewDate;
+      result.value = company.result;
+      nextAction.value = company.nextAction;
+      taskEs.checked = company.tasks.es;
+      taskResume.checked = company.tasks.resume;
+      taskWebTest.checked = company.tasks.webTest;
+      taskInterview.checked = company.tasks.interview;
+      formTitle.textContent = "応募情報を編集";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    window.deleteCompany = function(id) {
+      const target = companies.find(company => company.id === id);
+      if (!target) return;
+
+      const ok = confirm(`${target.name} の応募情報を削除しますか？`);
+      if (!ok) return;
+
+      companies = companies.filter(company => company.id !== id);
+      saveCompanies();
+      render();
+    };
+
+    function render() {
+      renderSummary();
+      renderCompanies();
+    }
+
+    render();
+  </script>
+</body>
+</html>
